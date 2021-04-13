@@ -1,0 +1,1 @@
+# yugioh-kana-spider
