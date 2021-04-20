@@ -1,3 +1,14 @@
+.DS_Store
+.gradle/
+gradle/
+build/
+.idea/
+
+# project files
+kanjikana/
+export/
+imported/
+
 # Compiled class file
 *.class
 
