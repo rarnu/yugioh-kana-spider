@@ -32,12 +32,11 @@ object CardPackList {
     }
 
     private fun extract(str: String): Pair<String, String> {
-        val idx = str.indexOf("<strong>") + 8
-        val endIdx = str.indexOf("</strong>")
-        var pkgName = str.substring(idx until endIdx)
+        var pkgName = str.replace("<div class=\"pack pack_ja\">", "").replace("<strong>", "").replace("</strong>", "")
         pkgName = pkgName.replace("<ruby>", "").replace("</ruby>", "").replace("<rb>", "").replace("</rb>", "").replace("<rt>", "").replace("</rt>", "")
         pkgName = pkgName.replace("<br />", "").replace("<br/>", "").replace("<br>", "")
-        pkgName = pkgName.replace("/", "_")
+        pkgName = pkgName.replace("/", "_").trim { it < 32.toChar() }
+        pkgName = pkgName.split("\n")[0].trim { it < 32.toChar() }
         val vIdx = str.indexOf("""value="""") + 7
         val vEndIdx = str.indexOf("\"", startIndex = vIdx)
         val value = str.substring(vIdx until vEndIdx)

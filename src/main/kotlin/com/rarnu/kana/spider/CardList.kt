@@ -25,6 +25,7 @@ object CardList {
                 tmp = tmp.substring(endIdx)
             }
         } catch (e: Exception) {
+            println("ERROR: $pkgUrl")
         }
         return list
     }

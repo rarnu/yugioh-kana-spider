@@ -1,5 +1,6 @@
 package com.rarnu.kana.exporter
 
+import com.rarnu.kana.common.mt
 import java.io.File
 import java.sql.DriverManager
 
@@ -22,8 +23,5 @@ object Exporter {
         File(exportPath, "$timestamp.sql").writeText(list.joinToString("\n"))
         println("exported: ${list.size}")
     }
-
-    private fun String.mt(): String = replace("'","\\'")
-
 }
 

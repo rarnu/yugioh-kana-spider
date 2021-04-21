@@ -8,15 +8,15 @@ object Writer {
     private val packPath = File(System.getProperty("user.dir"), "export").apply { if (!exists()) mkdirs() }
     private val donePath = File(System.getProperty("user.dir"), "imported").apply { if (!exists()) mkdirs() }
 
-    private fun isPackageImported(conn: Connection, pkgName: String): Boolean =
-        conn.prepareStatement("select count(1) from YGOPack where pack = ?").use { stmt ->
-            stmt.setString(1, pkgName)
-            stmt.executeQuery().use { resultSet ->
-                if (resultSet.next()) {
-                    resultSet.getInt(1) != 0
-                } else false
-            }
-        }
+//    private fun isPackageImported(conn: Connection, pkgName: String): Boolean =
+//        conn.prepareStatement("select count(1) from YGOPack where pack = ?").use { stmt ->
+//            stmt.setString(1, pkgName)
+//            stmt.executeQuery().use { resultSet ->
+//                if (resultSet.next()) {
+//                    resultSet.getInt(1) != 0
+//                } else false
+//            }
+//        }
 
     private fun recordPackage(conn: Connection, pkgName: String) {
         conn.prepareStatement("insert into YGOPack(pack) values (?)").use { stmt ->
@@ -41,24 +41,24 @@ object Writer {
         println("total: $total")
         list.forEachIndexed { idxPck, pack ->
             val pkgName = pack.nameWithoutExtension
-            if (!isPackageImported(conn, pkgName)) {
-                val sqlines = pack.readLines().filter { it.trim() != "" }
-                val sqlTotal = sqlines.size
-                sqlines.forEachIndexed { index, sql ->
-                    conn.createStatement().use { stmt ->
-                        try {
-                            stmt.executeUpdate(sql)
-                            println("DATA: $pack ($index / $sqlTotal)")
-                        } catch (th: Throwable) {
-                            println("DATA SKIP: $pack ($index / $sqlTotal) $th")
-                        }
+
+            val sqlines = pack.readLines().filter { it.trim() != "" }
+            val sqlTotal = sqlines.size
+            sqlines.forEachIndexed { index, sql ->
+                conn.createStatement().use { stmt ->
+                    try {
+                        stmt.executeUpdate(sql)
+                        println("DATA: $pack ($index / $sqlTotal)")
+                    } catch (th: Throwable) {
+                        println("DATA SKIP: $pack ($index / $sqlTotal) $th")
                     }
                 }
-                recordPackage(conn, pkgName)
-                println("PACK: $pkgName ($idxPck / $total)")
-            } else {
-                println("SKIP: $pkgName ($idxPck / $total)")
             }
+            recordPackage(conn, pkgName)
+            // move file
+            File(packPath, "$pkgName.sql").renameTo(File(donePath, "$pkgName.sql"))
+            println("PACK: $pkgName ($idxPck / $total)")
+
         }
     }
 
